@@ -1,0 +1,93 @@
+---
+ver:
+  present:
+    - pr: eu vejo o sol todos os dias
+      en: I see the sun every day
+    - pr: ele vê os pássaros voando
+      en: he sees the birds flying
+    - pr: nós vemos o mar daqui
+      en: we see the sea from here
+    - pr: eles veem os animais na floresta
+      en: the see the animals in the forest
+  imperfect:
+    - pr: eu via os carros passarem na rua
+      en: I used to see the cars passing in the road
+    - pr: ele via os animais na floresta
+      en: he used to see the animals in the forest
+    - pr: nós víamos o pôr do sol na praia
+      en: we used to see the sunset on the beach
+    - pr: eles viam a lua no céu
+      en: they used to see the moon in the sky
+  preterite:
+    - pr: eu vi o filme ontem
+      en: I saw the film yesterday
+    - pr: ele viu o trem passar
+      en: he saw the train pass
+    - pr: nós vimos o mar agitado
+      en: we saw the rough sea
+    - pr: eles viram o eclipse da lua
+      en: they saw the eclipse of the moon
+  presentPerfect:
+    - pr: eu tenho visto muitos filmes bons
+      en: I have seen many good films
+    - pr: ele tem visto muitas estrelas à noite
+      en: he has seen many stars at night
+    - pr: nós temos visto o pôr do sol juntos
+      en: we have seen the sunset together
+    - pr: eles têm visto os fogos de artifício no céu
+      en: they have seen the fireworks in the sky
+  future:
+    - pr: eu verei o nascer do sol amanhã
+      en: I will see the sunrise tomorrow
+    - pr: ele verá os fogos de artifício no reveillon
+      en: He will see the fireworks on New Year's Eve
+    - pr: nós veremos o mar azul na viagem
+      en: we will see the blue sea on the journey
+    - pr: eles verão as flores no jardim
+      en: they will see the flowers in the garden
+vir:
+  present:
+    - pr: eu venho sempre ao parque
+      en: I always come to the park
+    - pr: ela vem mais tarde
+      en: she comes later
+    - pr: nós vimos o filme juntos
+      en: we see the film together
+    - pr: eles vêm de longe
+      en: they come from afar
+  imperfect:
+    - pr: eu vinha ao parque todos os dias
+      en: I used to come to the park every day
+    - pr: ele vinha ler aqui à tarde
+      en: he used to come read here in the afternoon
+    - pr: nós vinhamos sempre antes do jantar
+      en: we used to always come before dinner
+    - pr: eles vinham jogar futebol todas as tardes
+      en: they used to come play soccer every afternoon
+  preterite:
+    - pr: eu vim à praia hoje
+      en: I came to the beach today
+    - pr: ele veio ajudar a avó
+      en: he came to help his granmother
+    - pr: nós viemos almoçar contigo
+      en: we came to have lunch with you
+    - pr: eles vieram rápido demais
+      en: they came too fast
+  presentPerfect:
+    - pr: eu tehno vindo aqui com frequência
+      en: I have been coming here often
+    - pr: ele tem vindo ajudar os outros
+      en: he has been coming to help others
+    - pr: nós temos vindo passear no parque
+      en: we have been coming for a walk in the park
+    - pr: eles têm vindo brincar no parque
+      en: they have been coming to play in the park
+  future:
+    - pr: eu virei buscar você mais tarde
+      en: I will come find you later
+    - pr: ele virá ajudar na festa
+      en: he will come help at the party
+    - pr: nós viremos jantar juntos
+      en: we will come to dinner together
+    - pr: eles virão no próximo final de semana
+      en: they will come next weekend
