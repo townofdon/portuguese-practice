@@ -13,8 +13,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "server": "http-server dist -o -c-1",
-    "dev": "webpack --watch",
-    "build": "webpack"
+    "dev": "webpack --watch --mode=development --node-env=development",
+    "build": "webpack --mode=development --node-env=development",
+    "deploy-gh-pages": "git subtree push --prefix dist/portuguese-practice origin gh-pages"
   },
   "keywords": [],
   "author": "",

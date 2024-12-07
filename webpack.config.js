@@ -2,9 +2,13 @@ const path = require('path');
 const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
+function stripTrailingSlash(text) {
+  return String(text).replace(/\/$/, '')
+}
 
-module.exports = {
-  mode: 'production',
+const isProduction = process.env.NODE_ENV == 'production';
+
+const config = {
   entry: './src/index.js',
   devtool: 'inline-source-map',
   devServer: {
@@ -12,8 +16,8 @@ module.exports = {
   },
   output: {
     filename: 'main.js',
-    path: path.resolve(__dirname, 'dist'),
-    publicPath: '/',
+    path: path.resolve(__dirname, 'dist/portuguese-practice'),
+    publicPath: stripTrailingSlash(isProduction ? '/' : '/portuguese-practice'),
   },
   plugins: [
     new CopyPlugin({
@@ -35,3 +39,12 @@ module.exports = {
     ]
   },
 };
+
+module.exports = () => {
+  if (isProduction) {
+    config.mode = 'production';
+  } else {
+    config.mode = 'development';
+  }
+  return config;
+}
