@@ -43,6 +43,7 @@ h5 { font-size: 1.4em; font-weight: 800; font-family: "Bebas Neue", sans-serif; 
 p { font-weight: 400; }
 a { font-size: inherit; font-weight: inherit; }
 .bold { font-weight: 800; }
+.accent { color: #ffc442; }
 
 main {
   padding: 30px;
@@ -74,13 +75,22 @@ main {
   padding: 30px;
   min-width: 200px;
   min-height: 100px;
-  font-size: 1.2em;
+  font-size: 1.5em;
+  line-height: 1.5em;
   border: solid 2px #0000004a;
   box-shadow: -5px 5px 4px 0px #0000007d;
 }
 
 .card.answer {
   background: rgb(36 68 49);
+  width: 200px;
+}
+.card.answer.revealed {
+  color: #9ae2e2;
+}
+
+.card.answer.revealed .accent {
+  color: #61ebc5;
 }
 
 .card.answer.revealed > .content { display: block; }
@@ -94,6 +104,15 @@ main {
   align-items: center;
   justify-content: center;
   margin: 5px 0;
+}
+
+.controls-container {
+  position: relative;
+  display: inline-flex;
+  margin: auto;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
 }
 
 button {
@@ -115,6 +134,27 @@ button.prev {
   color: #eee;
 }
 
+button.speak {
+  position: absolute;
+  left: 100%;
+  margin-left: 10px;
+  padding: 6px 12px;
+  background: #101010;
+  color: #eee;
+  opacity: 1;
+}
+
+button:disabled {
+  opacity: 0.5;
+  filter: grayscale(1);
+}
+
+.reshuffle-section-container {
+  position: relative;
+  display: inline-block;
+  margin: auto;
+}
+
 .options {
   display: flex;
   flex-direction: column;
@@ -127,6 +167,7 @@ button.prev {
   margin: auto;
   flex-wrap: wrap;
   flex-direction: row;
+  min-width: 300px;
 }
 
 .options .option {
