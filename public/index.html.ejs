@@ -21,7 +21,7 @@
   <div class="container">
     <h1>🇧🇷 Portugués Exercises</h1>
 
-    <h4 class="font-open-sans">Translate these sentences. If you dare!</h4>
+    <!-- <h4 class="font-open-sans">Translate these sentences. If you dare!</h4> -->
 
     <div class="cards">
       <div id="card-question" class="card">
@@ -57,6 +57,40 @@
         <span class="content">RESHUFFLE</span>
       </button>
     </div>
+
+    <section class="options">
+      <h3>Opções</h3>
+      <div class="options-container">
+        <div class="option">
+          <p><strong>Flashcard Order</strong></p>
+          <form id="form-question-order" onsubmit="(e) => e.preventDefault()">
+            <p>
+              <label><input name="question-order" type="radio" value="pr-first" /> Portuguese first</label>
+            </p>
+            <p>
+              <label><input name="question-order" type="radio" value="en-first" /> English first</label>
+            </p>
+            <p>
+              <label><input name="question-order" type="radio" value="any" checked /> Any</label>
+            </p>
+          </form>
+        </div>
+        <div class="option">
+          <p><strong>Exercises</strong></p>
+          <form id="form-select-exercises" onsubmit="(e) => e.preventDefault()">
+            <p>
+              <label><input name="checkbox-exercise-ver-conjugation" type="checkbox" checked /> Ver Conjugation</label>
+            </p>
+            <p>
+              <label><input name="checkbox-exercise-vir-conjugation" type="checkbox" checked /> Vir Conjugation</label>
+            </p>
+            <p>
+              <label><input name="checkbox-exercise-weak-phrases" type="checkbox" checked /> Weak Phrases</label>
+            </p>
+          </form>
+        </div>
+      </div>
+    </section>
 
   </div>
 </main>

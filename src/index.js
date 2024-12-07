@@ -1,28 +1,43 @@
 import conj from './resources/conjugation-ver-vir.yaml';
+import weakPhrases from './resources/weak-phrases.yaml';
 
 import { shuffleArray, assert } from './utils';
 import { isCharPressed, SpecialKey } from './keyboardUtils';
+import { EXERCISE, ORDER } from './constants';
 
-const cardQuestion = document.getElementById('card-question');
-const cardAnswer = document.getElementById('card-answer');
+import { optionsStore } from './stores/OptionsStore';
+
+function requireById(id) {
+  const elem = document.getElementById(id);
+  if (!elem) throw new Error(`Could not find DOM element with id "${id}"!!`);
+  return elem;
+}
+
+const cardQuestion = requireById('card-question');
+const cardAnswer = requireById('card-answer');
 const cardQuestionContent = cardQuestion.children[0]
 const cardAnswerContent = cardAnswer.children[0]
 
 assert(cardQuestionContent, 'cardQuestionContent does not exist');
 assert(cardAnswerContent, 'cardAnswerContent does not exist');
 
-const buttonPrev = document.getElementById('button-prev');
-const buttonNext = document.getElementById('button-next');
-const buttonReshuffle = document.getElementById('button-reshuffle');
-const progress = document.getElementById('progress');
+const buttonPrev = requireById('button-prev');
+const buttonNext = requireById('button-next');
+const buttonReshuffle = requireById('button-reshuffle');
+const progress = requireById('progress');
+const formQuestionOrder = requireById('form-question-order');
+const formSelectExercises = requireById('form-select-exercises');
 
 const state = {
   revealed: false,
   problems: [], // array of tuples -> [question, answer][]
   index: 0,
+  order: optionsStore.getOrder(),
+  selectedExercises: optionsStore.getSelectedExercises(),
 };
 
 function main() {
+  renderOptions();
   shuffleQuestions();
   setupListeners();
 }
@@ -37,26 +52,45 @@ function shuffleQuestions() {
   state.index = 0;
   const problems = []
   const addProblem = (problem) => {
-    const flip = randBool();
-    if (flip) {
+    if (!problem.en || !problem.pr) {
+      throw new Error(`Problem is invalid: ${JSON.stringify(problem)}`)
+    }
+    if (state.order === ORDER.EN_FIRST) {
       problems.push([problem.en, problem.pr]);
-    } else {
+    } else if (state.order === ORDER.PR_FIRST) {
       problems.push([problem.pr, problem.en]);
+    } else {
+      const flip = randBool();
+      if (flip) {
+        problems.push([problem.en, problem.pr]);
+      } else {
+        problems.push([problem.pr, problem.en]);
+      }
     }
   }
-  conj.ver.present.forEach(addProblem);
-  conj.ver.preterite.forEach(addProblem);
-  conj.ver.imperfect.forEach(addProblem);
-  conj.ver.presentPerfect.forEach(addProblem);
-  conj.ver.future.forEach(addProblem);
 
-  conj.vir.present.forEach(addProblem);
-  conj.vir.preterite.forEach(addProblem);
-  conj.vir.imperfect.forEach(addProblem);
-  conj.vir.presentPerfect.forEach(addProblem);
-  conj.vir.future.forEach(addProblem);
+  if (state.selectedExercises[EXERCISE.VER_CONJATION]) {
+    conj.ver.present.forEach(addProblem);
+    conj.ver.preterite.forEach(addProblem);
+    conj.ver.imperfect.forEach(addProblem);
+    conj.ver.presentPerfect.forEach(addProblem);
+    conj.ver.future.forEach(addProblem);
+  }
+
+  if (state.selectedExercises[EXERCISE.VIR_CONJUGATION]) {
+    conj.vir.present.forEach(addProblem);
+    conj.vir.preterite.forEach(addProblem);
+    conj.vir.imperfect.forEach(addProblem);
+    conj.vir.presentPerfect.forEach(addProblem);
+    conj.vir.future.forEach(addProblem);
+  }
+
+  if (state.selectedExercises[EXERCISE.WEAK_PHRASES]) {
+    weakPhrases.forEach(addProblem);
+  }
 
   state.problems = shuffleArray(problems);
+
   renderContent();
 }
 
@@ -82,6 +116,8 @@ function setupListeners() {
   buttonPrev.addEventListener('click', rewind);
   buttonReshuffle.addEventListener('click', shuffleQuestions);
   document.addEventListener('keydown', handleKeyPress);
+  formQuestionOrder.addEventListener('change', handleQuestionOrderChange)
+  formSelectExercises.addEventListener('change', handleSelectExerciseCheck)
 }
 
 /**
@@ -97,8 +133,35 @@ function handleKeyPress(ev) {
   }
 }
 
+/**
+ * @param {KeyboardEvent} ev
+ */
+function handleQuestionOrderChange(ev) {
+  state.order = ev.target.value;
+  optionsStore.setOrder(ev.target.value);
+  shuffleQuestions();
+}
+
+/**
+ * @param {KeyboardEvent} ev
+ */
+function handleSelectExerciseCheck(ev) {
+  state.selectedExercises[ev.target.name] = ev.target.checked;
+  optionsStore.setSelectedExercise(ev.target.name, ev.target.checked);
+  shuffleQuestions();
+}
+
 function renderContent() {
   const numProblems = state.problems.length
+
+  if (numProblems === 0) {
+    cardQuestionContent.innerHTML = "Please select an exercise to begin";
+    cardAnswerContent.innerHTML = "Por favor selecione um exercício para começar";
+    cardAnswer.classList.add('revealed');
+    progress.innerHTML = "0 / 0";
+    return;
+  }
+
   const currentIndex = state.index % numProblems;
   const progressText = `${currentIndex + 1} / ${numProblems}`
   const currentProblem = state.problems[currentIndex];
@@ -115,6 +178,20 @@ function renderContent() {
   }
 
   progress.innerHTML = progressText;
+}
+
+function renderOptions() {
+  formQuestionOrder.querySelectorAll('input').forEach(input => {
+    if (input.name === 'question-order') {
+      input.checked = state.order === input.value;
+    }
+  });
+
+  formSelectExercises.querySelectorAll('input').forEach(input => {
+    if (input.name.includes('checkbox-exercise')) {
+      input.checked = state.selectedExercises[input.name];
+    }
+  });
 }
 
 main();
