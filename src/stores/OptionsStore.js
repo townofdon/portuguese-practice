@@ -3,7 +3,7 @@ import { EXERCISE, ORDER } from "../constants";
 
 class OptionsStore extends BaseStore {
   get key() {
-    return "options-data"
+    return "pt-options"
   }
 
   _defaultValue = {

@@ -24,7 +24,7 @@ function loadVoices() {
     option.textContent = `${voices[i].name} (${voices[i].lang})`;
     option.value = i;
     selectVoice.appendChild(option);
-    if (voices[i].lang === 'pt-BR' && voices[i].name.toLowerCase().includes('google')) {
+    if (!chosenVoiceIndex && voices[i].lang === 'pt-BR' && voices[i].name.toLowerCase().includes('google')) {
       chosenVoiceIndex = i;
     }
   }

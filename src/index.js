@@ -3,9 +3,14 @@ import weakPhrases from './resources/weak-phrases.yaml';
 
 import { EXERCISE, ORDER } from './constants';
 import { isCharPressed, SpecialKey } from './keyboardUtils';
-import { speak } from './speak'
+import { Logger } from './Logger';
+import { speak } from './speak';
 import { optionsStore } from './stores/OptionsStore';
-import { shuffleArray, assert, requireById } from './utils';
+import { questionsStore } from './stores/QuestionsStore';
+import { assert, removeArrayElement, requireById, sha256, shuffleArray } from './utils';
+
+Logger.enable();
+Logger.disableDebug();
 
 const cardQuestion = requireById('card-question');
 const cardAnswer = requireById('card-answer');
@@ -19,6 +24,9 @@ const buttonPrev = requireById('button-prev');
 const buttonNext = requireById('button-next');
 const buttonReshuffle = requireById('button-reshuffle');
 const buttonSpeak = requireById('button-speak');
+const buttonSnooze1h = requireById('button-snooze-1h');
+const buttonSnooze7d = requireById('button-snooze-7d');
+const buttonSnooze30d = requireById('button-snooze-30d');
 const progress = requireById('progress');
 const formQuestionOrder = requireById('form-question-order');
 const formSelectExercises = requireById('form-select-exercises');
@@ -86,7 +94,9 @@ function shuffleQuestions() {
 
   state.problems = shuffleArray(problems);
 
-  renderContent();
+  prepareHashData(() => {
+    renderContent();
+  });
 }
 
 function playTranslationAudio() {
@@ -123,6 +133,9 @@ function setupListeners() {
   buttonPrev.addEventListener('click', rewind);
   buttonReshuffle.addEventListener('click', shuffleQuestions);
   buttonSpeak.addEventListener('click', playTranslationAudio);
+  buttonSnooze1h.addEventListener('click', handleClickSnooze);
+  buttonSnooze7d.addEventListener('click', handleClickSnooze);
+  buttonSnooze30d.addEventListener('click', handleClickSnooze);
   document.addEventListener('keydown', handleKeyPress);
   formQuestionOrder.addEventListener('change', handleQuestionOrderChange)
   formSelectExercises.addEventListener('change', handleSelectExerciseCheck)
@@ -139,6 +152,7 @@ function handleKeyPress(ev) {
   } else if (isCharPressed(ev, SpecialKey.ArrowLeft)) {
     rewind();
   } else if (isCharPressed(ev, SpecialKey.Space)) {
+    ev.preventDefault();
     playTranslationAudio();
   }
 }
@@ -159,6 +173,13 @@ function handleSelectExerciseCheck(ev) {
   state.selectedExercises[ev.target.name] = ev.target.checked;
   optionsStore.setSelectedExercise(ev.target.name, ev.target.checked);
   shuffleQuestions();
+}
+
+function handleClickSnooze(ev) {
+  const seconds = parseInt(ev.currentTarget.dataset.seconds, 10) || 0;
+  if (!seconds) return;
+  const snoozeDurationMs = seconds * 1000;
+  snoozeCurrentQuestion(snoozeDurationMs);
 }
 
 function renderContent() {
@@ -214,6 +235,67 @@ function markifyText(text) {
   return text
     .replace(regMarkdownBoldStart, "<strong class=\"accent\">")
     .replace(regMarkdownBoldEnd, "</strong>")
+}
+
+function snoozeCurrentQuestion(snoozeDurationMs) {
+  const numProblems = state.problems.length
+  if (numProblems === 0) {
+    return;
+  }
+  const currentIndex = state.index % numProblems;
+  const currentProblem = state.problems[currentIndex];
+  const hash = currentProblem[3];
+  if (questionsStore.snoozeQuestion(hash, snoozeDurationMs)) {
+    state.problems = removeArrayElement(state.problems, currentIndex);
+    state.revealed = false;
+    renderContent();
+  }
+}
+
+let cleanupHashProcessor = null;
+
+/**
+ * Hash Portuguese phrase to allow for "snoozing" a flash card
+ */
+function prepareHashData(onProcessingComplete = () => {}) {
+  if (cleanupHashProcessor) {
+    cleanupHashProcessor();
+  }
+
+  let ignore = false;
+
+  async function process() {
+    const timeStart = performance.now();
+    let i = 0;
+    while (!ignore && i < state.problems.length) {
+      const problem = state.problems[i];
+      const ptPhrase = problem[problem[2]];
+      const hash = await sha256(ptPhrase);
+      state.problems[i][3] = hash;
+      Logger.debug(`processing msg ${i} - ${hash} generated for "${ptPhrase}"`)
+      i++;
+    }
+    if (!ignore) {
+      const snoozedQuestions = questionsStore.getSnoozedQuestions();
+      state.problems = state.problems.filter(problem => {
+        const hash = problem[3];
+        const currentTime = Date.now();
+        const timeSnoozeExpiresMs = snoozedQuestions[hash] || 0;
+        return !!hash && timeSnoozeExpiresMs < currentTime
+      })
+
+      const timeEnd = performance.now();
+      Logger.info(`processing complete! - took ${timeEnd - timeStart}ms`);
+      onProcessingComplete();
+    }
+  }
+
+  process();
+
+  cleanupHashProcessor = () => {
+    ignore = true;
+    cleanupHashProcessor = null;
+  }
 }
 
 main();
