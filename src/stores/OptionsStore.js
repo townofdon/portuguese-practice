@@ -33,7 +33,7 @@ class OptionsStore extends BaseStore {
   /**
    * @returns object
    */
-  getSelectedExercises = () => this._state.selectedExercises;
+  getSelectedExercises = () => ({ ...this._state.selectedExercises });
 
   /**
    * @param {string} exercise

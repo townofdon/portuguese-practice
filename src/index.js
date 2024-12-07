@@ -138,6 +138,8 @@ function handleKeyPress(ev) {
     advance();
   } else if (isCharPressed(ev, SpecialKey.ArrowLeft)) {
     rewind();
+  } else if (isCharPressed(ev, SpecialKey.Space)) {
+    playTranslationAudio();
   }
 }
 
