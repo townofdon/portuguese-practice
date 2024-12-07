@@ -1,17 +1,11 @@
 import conj from './resources/conjugation-ver-vir.yaml';
 import weakPhrases from './resources/weak-phrases.yaml';
 
-import { shuffleArray, assert } from './utils';
-import { isCharPressed, SpecialKey } from './keyboardUtils';
 import { EXERCISE, ORDER } from './constants';
-
+import { isCharPressed, SpecialKey } from './keyboardUtils';
+import { speak } from './speak'
 import { optionsStore } from './stores/OptionsStore';
-
-function requireById(id) {
-  const elem = document.getElementById(id);
-  if (!elem) throw new Error(`Could not find DOM element with id "${id}"!!`);
-  return elem;
-}
+import { shuffleArray, assert, requireById } from './utils';
 
 const cardQuestion = requireById('card-question');
 const cardAnswer = requireById('card-answer');
@@ -24,13 +18,14 @@ assert(cardAnswerContent, 'cardAnswerContent does not exist');
 const buttonPrev = requireById('button-prev');
 const buttonNext = requireById('button-next');
 const buttonReshuffle = requireById('button-reshuffle');
+const buttonSpeak = requireById('button-speak');
 const progress = requireById('progress');
 const formQuestionOrder = requireById('form-question-order');
 const formSelectExercises = requireById('form-select-exercises');
 
 const state = {
   revealed: false,
-  problems: [], // array of tuples -> [question, answer][]
+  problems: [], // array of tuples -> [question, answer, portuguese-index-for-text-to-speech][]
   index: 0,
   order: optionsStore.getOrder(),
   selectedExercises: optionsStore.getSelectedExercises(),
@@ -56,15 +51,15 @@ function shuffleQuestions() {
       throw new Error(`Problem is invalid: ${JSON.stringify(problem)}`)
     }
     if (state.order === ORDER.EN_FIRST) {
-      problems.push([problem.en, problem.pr]);
+      problems.push([problem.en, problem.pr, 1]);
     } else if (state.order === ORDER.PR_FIRST) {
-      problems.push([problem.pr, problem.en]);
+      problems.push([problem.pr, problem.en, 0]);
     } else {
       const flip = randBool();
       if (flip) {
-        problems.push([problem.en, problem.pr]);
+        problems.push([problem.en, problem.pr, 1]);
       } else {
-        problems.push([problem.pr, problem.en]);
+        problems.push([problem.pr, problem.en, 0]);
       }
     }
   }
@@ -94,6 +89,18 @@ function shuffleQuestions() {
   renderContent();
 }
 
+function playTranslationAudio() {
+  const numProblems = state.problems.length
+
+  if (numProblems === 0) {
+    return;
+  }
+
+  const currentIndex = state.index % numProblems;
+  const currentProblem = state.problems[currentIndex];
+  speak(currentProblem[currentProblem[2]])
+}
+
 function advance() {
   if (state.revealed) {
     state.index++;
@@ -115,6 +122,7 @@ function setupListeners() {
   buttonNext.addEventListener('click', advance);
   buttonPrev.addEventListener('click', rewind);
   buttonReshuffle.addEventListener('click', shuffleQuestions);
+  buttonSpeak.addEventListener('click', playTranslationAudio);
   document.addEventListener('keydown', handleKeyPress);
   formQuestionOrder.addEventListener('change', handleQuestionOrderChange)
   formSelectExercises.addEventListener('change', handleSelectExerciseCheck)
@@ -168,8 +176,8 @@ function renderContent() {
 
   assert(currentProblem, `currentProblem out of bounds - tried index ${currentIndex} for array of length ${numProblems}`);
 
-  cardQuestionContent.innerHTML = currentProblem[0];
-  cardAnswerContent.innerHTML = currentProblem[1];
+  cardQuestionContent.innerHTML = markifyText(currentProblem[0]);
+  cardAnswerContent.innerHTML = markifyText(currentProblem[1]);
 
   if (state.revealed) {
     cardAnswer.classList.add('revealed');
@@ -192,6 +200,18 @@ function renderOptions() {
       input.checked = state.selectedExercises[input.name];
     }
   });
+}
+
+/**
+ * @param {string} text
+ * @returns string
+ */
+function markifyText(text) {
+  const regMarkdownBoldStart = /(?<!\S)\*\*(?!\s)/g;
+  const regMarkdownBoldEnd = /(?<!\s)\*\*(?!\S)/g;
+  return text
+    .replace(regMarkdownBoldStart, "<strong class=\"accent\">")
+    .replace(regMarkdownBoldEnd, "</strong>")
 }
 
 main();

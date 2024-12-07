@@ -16,3 +16,9 @@ export function assert(condition, optText) {
     throw new Error(optText || 'Assertion Failed!');
   }
 }
+
+export function requireById(id) {
+  const elem = document.getElementById(id);
+  if (!elem) throw new Error(`Could not find DOM element with id "${id}"!!`);
+  return elem;
+}

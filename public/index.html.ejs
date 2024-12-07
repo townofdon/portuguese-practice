@@ -39,23 +39,30 @@
     </div>
 
     <div class="controls">
-      <button id="button-prev" class="prev">
-        <span>←&nbsp;</span>
-        <span class="content">PREV</span>
-      </button>
-      <button id="button-next" class="next">
-        <span class="content">NEXT</span>
-        <span>&nbsp;→</span>
-      </button>
+      <div class="controls-container">
+        <button id="button-prev" class="prev">
+          <span>←&nbsp;</span>
+          <span class="content">PREV</span>
+        </button>
+        <button id="button-next" class="next">
+          <span class="content">NEXT</span>
+          <span>&nbsp;→</span>
+        </button>
+        <button id="button-speak" class="speak" title="Speak portuguese phrase">
+          <span>🔊</span>
+        </button>
+      </div>
     </div>
 
     <p id="progress" class="progress bold">1 / 29</p>
 
     <div>
-      <button id="button-reshuffle" class="reshuffle">
-        <span>🎲&nbsp;</span>
-        <span class="content">RESHUFFLE</span>
-      </button>
+      <div class="reshuffle-section-container">
+        <button id="button-reshuffle" class="reshuffle">
+          <span>🎲&nbsp;</span>
+          <span class="content">RESHUFFLE</span>
+        </button>
+      </div>
     </div>
 
     <section class="options">
@@ -86,6 +93,16 @@
             </p>
             <p>
               <label><input name="checkbox-exercise-weak-phrases" type="checkbox" checked /> Weak Phrases</label>
+            </p>
+          </form>
+        </div>
+      </div>
+      <div class="options-container">
+        <div class="option">
+          <p><strong>Text-to-Speech Voice</strong></p>
+          <form id="form-select-voice" onsubmit="(e) => e.preventDefault()">
+            <p>
+              <select id="select-voice"></select>
             </p>
           </form>
         </div>
