@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/icomoon.css">
 
   <title>Portuguese Exercises</title>
 <script defer src="/portuguese-practice/main.js"></script></head>
@@ -24,6 +25,21 @@
     <!-- <h4 class="font-open-sans">Translate these sentences. If you dare!</h4> -->
 
     <div class="cards">
+      <div class="card-left-sidebar">
+        <div class="tooltip">
+          <div class="tooltip-text">Snooze question for 1 hour</div>
+          <button id="button-snooze-1h" data-seconds="3600" class="snooze"><span class="icon-clock"></span>&nbsp;<span class="snooze-time">1h</span></button>
+        </div>
+        <div class="tooltip">
+          <div class="tooltip-text">Snooze question for 7 days</div>
+          <button id="button-snooze-7d" data-seconds="604800" class="snooze"><span class="icon-clock"></span>&nbsp;<span class="snooze-time">7d</span></button>
+        </div>
+        <div class="tooltip">
+          <div class="tooltip-text">Snooze question for 30 days</div>
+          <button id="button-snooze-30d" data-seconds="2592000" class="snooze"><span class="icon-clock"></span>&nbsp;<span class="snooze-time">30d</span></button>
+        </div>
+      </div>
+
       <div id="card-question" class="card">
         <span class="content">
           eu quero taco bell
