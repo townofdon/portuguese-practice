@@ -2,6 +2,8 @@
 
 Simple flash cards app for practicing Portugués.
 
+[App Demo](https://townofdon.github.io/portuguese-practice/)
+
 ## Usage
 
 ```
