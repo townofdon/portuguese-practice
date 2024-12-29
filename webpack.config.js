@@ -2,6 +2,11 @@ const path = require('path');
 const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
+/**
+ * 
+ * @param {string} text
+ * @returns 
+ */
 function stripTrailingSlash(text) {
   return String(text).replace(/\/$/, '')
 }
@@ -9,6 +14,7 @@ function stripTrailingSlash(text) {
 const isProduction = process.env.NODE_ENV == 'production';
 
 const config = {
+  mode: 'development',
   entry: './src/index.js',
   devtool: 'inline-source-map',
   devServer: {

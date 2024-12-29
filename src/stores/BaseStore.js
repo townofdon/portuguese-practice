@@ -1,6 +1,6 @@
 
 export class BaseStore {
-  get key() {} // abstract
+  get key() { return ""; } // abstract
 
   clearStore = () => {
     this._validate();
@@ -19,6 +19,9 @@ export class BaseStore {
     }
   }
 
+  /**
+   * @param {Object} value
+   */
   setStore = (value) => {
     this._validate();
     try {

@@ -2,9 +2,12 @@ import { requireById } from './utils';
 
 const synth = window.speechSynthesis;
 
+/** @type {HTMLSelectElement} */
+// @ts-ignore
 const selectVoice = requireById("select-voice")
 
-let voices;
+/** @type {SpeechSynthesisVoice[]} */
+let voices = [];
 
 function removeVoiceOptions() {
   for (const child of selectVoice.children) {
@@ -17,18 +20,22 @@ function loadVoices() {
   removeVoiceOptions();
   let chosenVoiceIndex = 0;
   for (let i = 0; i < voices.length; i++) {
-    if (!/^pt-/.test(voices[i].lang)) {
+    const voice = voices[i];
+    if (!voice) {
+      continue;
+    }
+    if (!/^pt-/.test(voice.lang)) {
       continue;
     }
     const option = document.createElement("option");
-    option.textContent = `${voices[i].name} (${voices[i].lang})`;
-    option.value = i;
+    option.textContent = `${voice.name} (${voice.lang})`;
+    option.value = String(i);
     selectVoice.appendChild(option);
-    if (!chosenVoiceIndex && voices[i].lang === 'pt-BR' && voices[i].name.toLowerCase().includes('google')) {
+    if (!chosenVoiceIndex && voice.lang === 'pt-BR' && voice.name.toLowerCase().includes('google')) {
       chosenVoiceIndex = i;
     }
   }
-  selectVoice.value = chosenVoiceIndex;
+  selectVoice.value = String(chosenVoiceIndex);
 }
 
 // in Google Chrome the voices are not ready on page load
@@ -38,9 +45,16 @@ if ("onvoiceschanged" in synth) {
   loadVoices();
 }
 
+/**
+ * @param {string} text
+ */
 export const speak = (text) => {
   const filtered = text.replace(/\*\*/g, '');
   const utterance = new SpeechSynthesisUtterance(filtered);
-  utterance.voice = voices[selectVoice.value];
+  const voice = voices[parseInt(selectVoice.value, 10)];
+  if (!voice) {
+    return;
+  }
+  utterance.voice = voice;
   synth.speak(utterance);
 }

@@ -2,6 +2,7 @@ import { BaseStore } from "./BaseStore";
 import { EXERCISE, ORDER } from "../constants";
 
 class OptionsStore extends BaseStore {
+  /** @override */
   get key() {
     return "pt-options"
   }
@@ -18,7 +19,7 @@ class OptionsStore extends BaseStore {
   _state = this.getStore() || { ...this._defaultValue };
 
   /**
-   * @returns string
+   * @returns {string}
    */
   getOrder = () => this._state.order;
 

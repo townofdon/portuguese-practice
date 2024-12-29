@@ -1,6 +1,7 @@
 import { BaseStore } from "./BaseStore";
 
 class QuestionsStore extends BaseStore {
+  /** @override */
   get key() {
     return "pt-questions"
   }

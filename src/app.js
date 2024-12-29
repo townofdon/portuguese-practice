@@ -1,3 +1,5 @@
+'use strict'
+
 import conj from './resources/conjugation-ver-vir.yaml';
 import weakPhrases from './resources/weak-phrases.yaml';
 
@@ -7,15 +9,15 @@ import { Logger } from './Logger';
 import { speak } from './speak';
 import { optionsStore } from './stores/OptionsStore';
 import { questionsStore } from './stores/QuestionsStore';
-import { assert, removeArrayElement, requireById, sha256, shuffleArray } from './utils';
+import { assert, removeArrayElement, requireById, requireFirstChild, sha256, shuffleArray } from './utils';
 
 Logger.enable();
 Logger.disableDebug();
 
 const cardQuestion = requireById('card-question');
 const cardAnswer = requireById('card-answer');
-const cardQuestionContent = cardQuestion.children[0]
-const cardAnswerContent = cardAnswer.children[0]
+const cardQuestionContent = requireFirstChild(cardQuestion)
+const cardAnswerContent = requireFirstChild(cardAnswer)
 
 assert(cardQuestionContent, 'cardQuestionContent does not exist');
 assert(cardAnswerContent, 'cardAnswerContent does not exist');
@@ -30,13 +32,21 @@ const buttonSnooze30d = requireById('button-snooze-30d');
 const progress = requireById('progress');
 const formQuestionOrder = requireById('form-question-order');
 const formSelectExercises = requireById('form-select-exercises');
+const formSelectMode = requireById('form-select-mode');
 
+/**
+ * @typedef {{pr: string, en: string}} TranslationPair
+ */
+
+/**
+ * @typedef {[string, string, number]|[string, string, number, string]} Problem
+ */
+
+/** @type {{ revealed: boolean, problems: Problem[], index: number }} State */
 const state = {
   revealed: false,
   problems: [], // array of tuples -> [question, answer, portuguese-index-for-text-to-speech][]
   index: 0,
-  order: optionsStore.getOrder(),
-  selectedExercises: optionsStore.getSelectedExercises(),
 };
 
 function main() {
@@ -53,26 +63,31 @@ function shuffleQuestions() {
   state.revealed = false;
   state.problems = [];
   state.index = 0;
+  /** @type {Problem[]} */
   const problems = []
-  const addProblem = (problem) => {
-    if (!problem.en || !problem.pr) {
-      throw new Error(`Problem is invalid: ${JSON.stringify(problem)}`)
+  /** @param {TranslationPair} trans */
+  const addProblem = (trans) => {
+    if (!trans.en || !trans.pr) {
+      throw new Error(`Problem is invalid: ${JSON.stringify(trans)}`)
     }
-    if (state.order === ORDER.EN_FIRST) {
-      problems.push([problem.en, problem.pr, 1]);
-    } else if (state.order === ORDER.PR_FIRST) {
-      problems.push([problem.pr, problem.en, 0]);
+    const order = optionsStore.getOrder();
+    if (order === ORDER.EN_FIRST) {
+      problems.push([trans.en, trans.pr, 1]);
+    } else if (order === ORDER.PR_FIRST) {
+      problems.push([trans.pr, trans.en, 0]);
     } else {
       const flip = randBool();
       if (flip) {
-        problems.push([problem.en, problem.pr, 1]);
+        problems.push([trans.en, trans.pr, 1]);
       } else {
-        problems.push([problem.pr, problem.en, 0]);
+        problems.push([trans.pr, trans.en, 0]);
       }
     }
   }
 
-  if (state.selectedExercises[EXERCISE.VER_CONJATION]) {
+  const selectedExercises = optionsStore.getSelectedExercises()
+
+  if (selectedExercises[EXERCISE.VER_CONJATION]) {
     conj.ver.present.forEach(addProblem);
     conj.ver.preterite.forEach(addProblem);
     conj.ver.imperfect.forEach(addProblem);
@@ -80,7 +95,7 @@ function shuffleQuestions() {
     conj.ver.future.forEach(addProblem);
   }
 
-  if (state.selectedExercises[EXERCISE.VIR_CONJUGATION]) {
+  if (selectedExercises[EXERCISE.VIR_CONJUGATION]) {
     conj.vir.present.forEach(addProblem);
     conj.vir.preterite.forEach(addProblem);
     conj.vir.imperfect.forEach(addProblem);
@@ -88,7 +103,7 @@ function shuffleQuestions() {
     conj.vir.future.forEach(addProblem);
   }
 
-  if (state.selectedExercises[EXERCISE.WEAK_PHRASES]) {
+  if (selectedExercises[EXERCISE.WEAK_PHRASES]) {
     weakPhrases.forEach(addProblem);
   }
 
@@ -108,7 +123,11 @@ function playTranslationAudio() {
 
   const currentIndex = state.index % numProblems;
   const currentProblem = state.problems[currentIndex];
-  speak(currentProblem[currentProblem[2]])
+  if (!currentProblem) return
+  /** @type {string} */
+  // @ts-ignore
+  const ptPhrase = currentProblem[currentProblem[2]]
+  speak(ptPhrase)
 }
 
 function advance() {
@@ -137,8 +156,12 @@ function setupListeners() {
   buttonSnooze7d.addEventListener('click', handleClickSnooze);
   buttonSnooze30d.addEventListener('click', handleClickSnooze);
   document.addEventListener('keydown', handleKeyPress);
+  // @ts-ignore
   formQuestionOrder.addEventListener('change', handleQuestionOrderChange)
-  formSelectExercises.addEventListener('change', handleSelectExerciseCheck)
+  // @ts-ignore
+  formSelectExercises.addEventListener('change', handleSelectExerciseChange)
+  // @ts-ignore
+  formSelectMode.addEventListener('change', handleSelectModeChange)
 }
 
 /**
@@ -158,23 +181,34 @@ function handleKeyPress(ev) {
 }
 
 /**
- * @param {KeyboardEvent} ev
+ * @param {Event & { target: HTMLInputElement }} ev
  */
 function handleQuestionOrderChange(ev) {
-  state.order = ev.target.value;
+  if (!ev.target) return
+  // state.order = ev.target.value;
   optionsStore.setOrder(ev.target.value);
   shuffleQuestions();
 }
 
 /**
- * @param {KeyboardEvent} ev
+ * @param {Event & { target: HTMLInputElement }} ev
  */
-function handleSelectExerciseCheck(ev) {
-  state.selectedExercises[ev.target.name] = ev.target.checked;
+function handleSelectExerciseChange(ev) {
   optionsStore.setSelectedExercise(ev.target.name, ev.target.checked);
   shuffleQuestions();
 }
 
+/**
+ * @param {Event & { target: HTMLInputElement }} ev
+ */
+function handleSelectModeChange(ev) {
+  // TODO: set mode
+}
+
+/**
+ * @param {*} ev
+ * @returns
+ */
 function handleClickSnooze(ev) {
   const seconds = parseInt(ev.currentTarget.dataset.seconds, 10) || 0;
   if (!seconds) return;
@@ -198,6 +232,7 @@ function renderContent() {
   const currentProblem = state.problems[currentIndex];
 
   assert(currentProblem, `currentProblem out of bounds - tried index ${currentIndex} for array of length ${numProblems}`);
+  if (!currentProblem) return
 
   cardQuestionContent.innerHTML = markifyText(currentProblem[0]);
   cardAnswerContent.innerHTML = markifyText(currentProblem[1]);
@@ -214,13 +249,13 @@ function renderContent() {
 function renderOptions() {
   formQuestionOrder.querySelectorAll('input').forEach(input => {
     if (input.name === 'question-order') {
-      input.checked = state.order === input.value;
+      input.checked = optionsStore.getOrder() === input.value;
     }
   });
 
   formSelectExercises.querySelectorAll('input').forEach(input => {
     if (input.name.includes('checkbox-exercise')) {
-      input.checked = state.selectedExercises[input.name];
+      input.checked = optionsStore.getSelectedExercises()[input.name];
     }
   });
 }
@@ -237,6 +272,9 @@ function markifyText(text) {
     .replace(regMarkdownBoldEnd, "</strong>")
 }
 
+/**
+ * @param {number} snoozeDurationMs
+ */
 function snoozeCurrentQuestion(snoozeDurationMs) {
   const numProblems = state.problems.length
   if (numProblems === 0) {
@@ -244,7 +282,8 @@ function snoozeCurrentQuestion(snoozeDurationMs) {
   }
   const currentIndex = state.index % numProblems;
   const currentProblem = state.problems[currentIndex];
-  const hash = currentProblem[3];
+  if (!currentProblem) return;
+  const hash = currentProblem[3] || "";
   if (questionsStore.snoozeQuestion(hash, snoozeDurationMs)) {
     state.problems = removeArrayElement(state.problems, currentIndex);
     state.revealed = false;
@@ -252,6 +291,7 @@ function snoozeCurrentQuestion(snoozeDurationMs) {
   }
 }
 
+/** @type {null | (() => void)} */
 let cleanupHashProcessor = null;
 
 /**
@@ -269,8 +309,10 @@ function prepareHashData(onProcessingComplete = () => {}) {
     let i = 0;
     while (!ignore && i < state.problems.length) {
       const problem = state.problems[i];
-      const ptPhrase = problem[problem[2]];
+      if (!problem) continue;
+      const ptPhrase = String(problem[problem[2]]);
       const hash = await sha256(ptPhrase);
+      // @ts-ignore
       state.problems[i][3] = hash;
       Logger.debug(`processing msg ${i} - ${hash} generated for "${ptPhrase}"`)
       i++;
@@ -278,7 +320,7 @@ function prepareHashData(onProcessingComplete = () => {}) {
     if (!ignore) {
       const snoozedQuestions = questionsStore.getSnoozedQuestions();
       state.problems = state.problems.filter(problem => {
-        const hash = problem[3];
+        const hash = problem[3] || "";
         const currentTime = Date.now();
         const timeSnoozeExpiresMs = snoozedQuestions[hash] || 0;
         return !!hash && timeSnoozeExpiresMs < currentTime
