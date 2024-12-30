@@ -274,6 +274,7 @@ input[type=radio] {
 
   .cards {
     flex-direction: column;
+    align-items: center;
   }
 
   .card-left-sidebar {
