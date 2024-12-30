@@ -47,8 +47,10 @@ if ("onvoiceschanged" in synth) {
 
 /**
  * @param {string} text
+ * @param {(() => void) | undefined} onFinished
  */
-export const speak = (text) => {
+export const speak = (text, onFinished = undefined) => {
+  if (synth.speaking) return;
   const filtered = text.replace(/\*\*/g, '');
   const utterance = new SpeechSynthesisUtterance(filtered);
   const voice = voices[parseInt(selectVoice.value, 10)];
@@ -57,4 +59,7 @@ export const speak = (text) => {
   }
   utterance.voice = voice;
   synth.speak(utterance);
+  if (onFinished) {
+    utterance.onend = onFinished;
+  }
 }

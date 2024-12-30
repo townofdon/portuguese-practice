@@ -33,6 +33,11 @@ class QuestionsStore extends BaseStore {
     return true;
   }
 
+  unsnoozeAllQuestions = () => {
+    this._state.snoozed = {};
+    this.setStore(this._state);
+  }
+
   reset = () => {
     this.clearStore();
     this._state = { ...this._defaultValue };

@@ -104,10 +104,16 @@ main {
   color: #61ebc5;
 }
 
-.card.answer.revealed > .content { display: block; }
-.card.answer.revealed > .intrigue { display: none; }
 .card.answer:not(.revealed) > .content { display: none; }
 .card.answer:not(.revealed) > .intrigue { display: block; }
+.card.answer.revealed > .content { display: block; }
+.card.answer.revealed > .intrigue { display: none; }
+
+.card.question > .intrigue { display: none; }
+.main.mode-listening .card.question:not(.revealed) > .content { display: none; }
+.main.mode-listening .card.question:not(.revealed) > .intrigue { display: block; }
+.main.mode-listening .card.question.revealed > .content { display: block; }
+.main.mode-listening .card.question.revealed > .intrigue { display: none; }
 
 .controls {
   display: flex;
@@ -124,6 +130,13 @@ main {
   flex-direction: row;
   align-items: center;
   justify-content: center;
+}
+
+.speech-status {
+  position: absolute;
+  left: 100%;
+  margin-left: 10px;
+  color: #eee;
 }
 
 button {
@@ -150,10 +163,15 @@ button.prev {
   color: #eee;
 }
 
-button.speak {
+.button-speak-container {
   position: absolute;
   left: 100%;
-  margin-left: 10px;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+button.speak {
   padding: 6px 12px;
   background: #101010;
   color: #eee;
@@ -225,6 +243,10 @@ button .snooze-time {
   margin-left: 20px;
   margin-right: 20px;
   margin-bottom: 20px;
+}
+
+.options .option > button:first-of-type {
+  margin-left: 0;
 }
 
 input[type=checkbox],

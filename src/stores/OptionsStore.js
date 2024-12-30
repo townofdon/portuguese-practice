@@ -1,5 +1,5 @@
 import { BaseStore } from "./BaseStore";
-import { EXERCISE, ORDER } from "../constants";
+import { EXERCISE, MODE, ORDER } from "../constants";
 
 class OptionsStore extends BaseStore {
   /** @override */
@@ -14,17 +14,27 @@ class OptionsStore extends BaseStore {
       [EXERCISE.VIR_CONJUGATION]: true,
       [EXERCISE.WEAK_PHRASES]: true,
     },
+    mode: MODE.READING,
   };
 
-  _state = this.getStore() || { ...this._defaultValue };
+  _state = (() => {
+    const stored = this.getStore()
+    if (!stored) {
+      return { ...this._defaultValue }
+    }
+    return {
+      ...this._defaultValue,
+      ...stored,
+    }
+  })();
 
   /**
-   * @returns {string}
+   * @returns {ORDER}
    */
   getOrder = () => this._state.order;
 
   /**
-   * @param {string} val
+   * @param {ORDER} val
    */
   setOrder = (val) => {
     this._state.order = val;
@@ -32,7 +42,7 @@ class OptionsStore extends BaseStore {
   }
 
   /**
-   * @returns object
+   * @returns {Record<EXERCISE, boolean>}
    */
   getSelectedExercises = () => ({ ...this._state.selectedExercises });
 
@@ -42,6 +52,19 @@ class OptionsStore extends BaseStore {
    */
   setSelectedExercise = (exercise, isSelected) => {
     this._state.selectedExercises[exercise] = isSelected;
+    this.setStore(this._state);
+  }
+
+  /**
+   * @returns {MODE}
+   */
+  getMode = () => this._state.mode;
+
+  /**
+   * @param {MODE} mode
+   */
+  setMode = (mode) => {
+    this._state.mode = mode;
     this.setStore(this._state);
   }
 

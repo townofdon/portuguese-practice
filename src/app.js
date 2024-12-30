@@ -3,7 +3,7 @@
 import conj from './resources/conjugation-ver-vir.yaml';
 import weakPhrases from './resources/weak-phrases.yaml';
 
-import { EXERCISE, ORDER } from './constants';
+import { EXERCISE, MODE, ONE_HOUR_MS, ORDER } from './constants';
 import { isCharPressed, SpecialKey } from './keyboardUtils';
 import { Logger } from './Logger';
 import { speak } from './speak';
@@ -14,6 +14,7 @@ import { assert, removeArrayElement, requireById, requireFirstChild, sha256, shu
 Logger.enable();
 Logger.disableDebug();
 
+const mainNode = requireById('main');
 const cardQuestion = requireById('card-question');
 const cardAnswer = requireById('card-answer');
 const cardQuestionContent = requireFirstChild(cardQuestion)
@@ -29,23 +30,26 @@ const buttonSpeak = requireById('button-speak');
 const buttonSnooze1h = requireById('button-snooze-1h');
 const buttonSnooze7d = requireById('button-snooze-7d');
 const buttonSnooze30d = requireById('button-snooze-30d');
+const buttonUnsnooze = requireById('button-unsnooze');
 const progress = requireById('progress');
 const formQuestionOrder = requireById('form-question-order');
 const formSelectExercises = requireById('form-select-exercises');
 const formSelectMode = requireById('form-select-mode');
+const speechStatus = requireById('speech-status');
 
 /**
  * @typedef {{pr: string, en: string}} TranslationPair
  */
 
 /**
+ * Problem Tuple -> `[question, answer, portuguese-index-for-text-to-speech, hash]`
  * @typedef {[string, string, number]|[string, string, number, string]} Problem
  */
 
 /** @type {{ revealed: boolean, problems: Problem[], index: number }} State */
 const state = {
   revealed: false,
-  problems: [], // array of tuples -> [question, answer, portuguese-index-for-text-to-speech][]
+  problems: [],
   index: 0,
 };
 
@@ -116,24 +120,26 @@ function shuffleQuestions() {
 
 function playTranslationAudio() {
   const numProblems = state.problems.length
-
   if (numProblems === 0) {
     return;
   }
-
   const currentIndex = state.index % numProblems;
   const currentProblem = state.problems[currentIndex];
-  if (!currentProblem) return
   /** @type {string} */
   // @ts-ignore
   const ptPhrase = currentProblem[currentProblem[2]]
-  speak(ptPhrase)
+  const hideSpeakingStatus = showSpeakingStatus();
+  speak(ptPhrase, () => hideSpeakingStatus())
 }
 
 function advance() {
   if (state.revealed) {
     state.index++;
     state.revealed = false;
+    if (optionsStore.getMode() === MODE.LISTENING) {
+      playTranslationAudio();
+    }
+    snoozeCurrentQuestion(ONE_HOUR_MS, false);
   } else {
     state.revealed = true;
   }
@@ -155,6 +161,7 @@ function setupListeners() {
   buttonSnooze1h.addEventListener('click', handleClickSnooze);
   buttonSnooze7d.addEventListener('click', handleClickSnooze);
   buttonSnooze30d.addEventListener('click', handleClickSnooze);
+  buttonUnsnooze.addEventListener('click', handleClickUnsnooze);
   document.addEventListener('keydown', handleKeyPress);
   // @ts-ignore
   formQuestionOrder.addEventListener('change', handleQuestionOrderChange)
@@ -202,7 +209,8 @@ function handleSelectExerciseChange(ev) {
  * @param {Event & { target: HTMLInputElement }} ev
  */
 function handleSelectModeChange(ev) {
-  // TODO: set mode
+  optionsStore.setMode(ev.target.value);
+  shuffleQuestions();
 }
 
 /**
@@ -214,6 +222,14 @@ function handleClickSnooze(ev) {
   if (!seconds) return;
   const snoozeDurationMs = seconds * 1000;
   snoozeCurrentQuestion(snoozeDurationMs);
+}
+
+/**
+ * @param {*} ev
+ */
+function handleClickUnsnooze(ev) {
+  questionsStore.unsnoozeAllQuestions();
+  shuffleQuestions();
 }
 
 function renderContent() {
@@ -238,9 +254,22 @@ function renderContent() {
   cardAnswerContent.innerHTML = markifyText(currentProblem[1]);
 
   if (state.revealed) {
+    cardQuestion.classList.add('revealed');
     cardAnswer.classList.add('revealed');
   } else {
+    cardQuestion.classList.remove('revealed');
     cardAnswer.classList.remove('revealed');
+  }
+
+  mainNode.classList.remove('mode-reading');
+  mainNode.classList.remove('mode-listening')
+  switch (optionsStore.getMode()) {
+    case MODE.LISTENING:
+      mainNode.classList.add('mode-listening');
+      break;
+    case MODE.READING:
+      mainNode.classList.add('mode-reading');
+      break;
   }
 
   progress.innerHTML = progressText;
@@ -255,7 +284,13 @@ function renderOptions() {
 
   formSelectExercises.querySelectorAll('input').forEach(input => {
     if (input.name.includes('checkbox-exercise')) {
-      input.checked = optionsStore.getSelectedExercises()[input.name];
+      input.checked = !!optionsStore.getSelectedExercises()[input.name];
+    }
+  });
+
+  formSelectMode.querySelectorAll('select').forEach(select => {
+    if (select.name.includes('select-mode')) {
+      select.value = optionsStore.getMode();
     }
   });
 }
@@ -275,7 +310,7 @@ function markifyText(text) {
 /**
  * @param {number} snoozeDurationMs
  */
-function snoozeCurrentQuestion(snoozeDurationMs) {
+function snoozeCurrentQuestion(snoozeDurationMs, shouldRemoveProblem = true) {
   const numProblems = state.problems.length
   if (numProblems === 0) {
     return;
@@ -284,10 +319,10 @@ function snoozeCurrentQuestion(snoozeDurationMs) {
   const currentProblem = state.problems[currentIndex];
   if (!currentProblem) return;
   const hash = currentProblem[3] || "";
-  if (questionsStore.snoozeQuestion(hash, snoozeDurationMs)) {
+  const didSnooze = questionsStore.snoozeQuestion(hash, snoozeDurationMs);
+  if (didSnooze && shouldRemoveProblem) {
     state.problems = removeArrayElement(state.problems, currentIndex);
     state.revealed = false;
-    renderContent();
   }
 }
 
@@ -338,6 +373,27 @@ function prepareHashData(onProcessingComplete = () => {}) {
     ignore = true;
     cleanupHashProcessor = null;
   }
+}
+
+function showSpeakingStatus() {
+  let i = 0;
+  speechStatus.innerText = '.';
+  const interval = setInterval(() => {
+    i++;
+    speechStatus.innerText = (() => {
+      if (i % 3 === 0) {
+        return '.';
+      }
+      if (i % 3 === 1) {
+        return '..';
+      }
+      return '...';
+    })()
+  }, 500);
+  return () => {
+    clearInterval(interval);
+    speechStatus.innerText = "";
+  };
 }
 
 main();
