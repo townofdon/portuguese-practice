@@ -253,3 +253,24 @@ input[type=checkbox],
 input[type=radio] {
   margin-left: 0;
 }
+
+@media screen and (max-width: 900px) {
+  h1 {
+    margin-top: 0;
+  }
+
+  .cards {
+    flex-direction: column;
+  }
+
+  .card-left-sidebar {
+    position: relative;
+    right: initial;
+    flex-direction: row;
+  }
+
+  .card {
+    padding: 0 30px;
+    width: 200px;
+  }
+}
