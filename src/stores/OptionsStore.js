@@ -12,6 +12,7 @@ class OptionsStore extends BaseStore {
     selectedExercises: {
       [EXERCISE.VER_CONJATION]: true,
       [EXERCISE.VIR_CONJUGATION]: true,
+      [EXERCISE.VER_AND_VIR]: true,
       [EXERCISE.WEAK_PHRASES]: true,
       [EXERCISE.VOCAB]: true,
     },

@@ -29,6 +29,7 @@ const config = {
     new CopyPlugin({
       patterns: [
         { from: "public/css", to: "css" },
+        { from: "public/sfx", to: "sfx" },
       ],
     }),
     new HtmlWebpackPlugin({

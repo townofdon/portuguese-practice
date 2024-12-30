@@ -11,6 +11,7 @@ declare module '*/conjugation-ver-vir.yaml' {
       preterite: TranslationPair[],
       presentPerfect: TranslationPair[],
       future: TranslationPair[],
+      presentSubjunctive: TranslationPair[],
     }
     vir: {
       present: TranslationPair[],
@@ -18,7 +19,13 @@ declare module '*/conjugation-ver-vir.yaml' {
       preterite: TranslationPair[],
       presentPerfect: TranslationPair[],
       future: TranslationPair[],
+      presentSubjunctive: TranslationPair[],
     }
+    ver_and_vir: {
+      present: TranslationPair[],
+      imperfect: TranslationPair[],
+      preterite: TranslationPair[],
+    },
   }
   export default data
 }

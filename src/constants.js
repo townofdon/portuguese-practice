@@ -16,6 +16,7 @@ export const ORDER = {
 export const EXERCISE = {
   VER_CONJATION: 'checkbox-exercise-ver-conjugation',
   VIR_CONJUGATION: 'checkbox-exercise-vir-conjugation',
+  VER_AND_VIR: 'checkbox-exercise-ver-and-vir',
   WEAK_PHRASES: 'checkbox-exercise-weak-phrases',
   VOCAB: 'checkbox-exercise-vocab',
 }

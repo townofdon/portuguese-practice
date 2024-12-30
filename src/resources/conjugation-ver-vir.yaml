@@ -8,7 +8,7 @@ ver:
     - pr: nós vemos o mar daqui
       en: we see the sea from here
     - pr: eles veem os animais na floresta
-      en: the see the animals in the forest
+      en: they see the animals in the forest
   imperfect:
     - pr: eu via os carros passarem na rua
       en: I used to see the cars passing in the road
@@ -45,6 +45,15 @@ ver:
       en: we will see the blue sea on the journey
     - pr: eles verão as flores no jardim
       en: they will see the flowers in the garden
+  presentSubjunctive:
+    - pr: você quer que eu **veja** qual é o problema?
+      en: do you want me **to see** what the problem is?
+    - pr: você quer que um mechanica **veja** qual é o problema?
+      en: do you want a mechanic **to see** what the problem is?
+    - pr: você quer que nós **vejamos** qual é o problema?
+      en: do you want us **to see** what the problem is?
+    - pr: você quer que eles **vejam** qual é o problema?
+      en: do you want them **to see** what the problem is?
 vir:
   present:
     - pr: eu venho sempre ao parque
@@ -93,3 +102,44 @@ vir:
       en: we will come to dinner together
     - pr: eles virão no próximo final de semana
       en: they will come next weekend
+  presentSubjunctive:
+    - pr: É melhor que eu **venha** mais cedo amanhã
+      en: It is better that I **come** earlier tomorrow \n _(I better come early tomorrow)_
+    - pr: É melhor que você **venha** mais cedo amanhã
+      en: It is better that you **come** earlier tomorrow \n _(You better come early tomorrow)_
+    - pr: É melhor que **venhamos** mais cedo amanhã
+      en: It is better that we **come** earlier tomorrow \n _(We better come early tomorrow)_
+    - pr: É melhor que eles **venham** mais cedo amanhã
+      en: It is better that they **come** earlier tomorrow \n _(They better come early tomorrow)_
+ver_and_vir:
+  present:
+    - pr: sempre que eu **venho** ao jardim, **vejo** muitas flores
+      en: when I **come** to the garden, I always **see** many flowers
+    - pr: sempre que ele **vem** ao parque, **vê** alguns passaros
+      en: when he **comes** to the park, he always **sees** some birds
+    - pr: sempre que nós **vimos** a praia, **vemos** crianças brincando
+      en: when we **come** to the beach, we always **see** kids playing
+    - pr: sempre que elas **vêm** a favela, **veem** alguns cachorros brincando
+      en: when they **come** to the favela, they always **see** some dogs playing
+  imperfect:
+    - pr: Antigamente, quando eu **vinha** ao parque, **via** mais famílias fazendo piquenique
+      en: In the past, when I **came** to the park, I **saw** more families having picnics
+    - pr: Antigamente, quando ele **vinha** ao parque, **via** mais crianças empinado pipa
+      en: In the past, when he **came** to the park, he **saw** more kids flying kites
+    - pr: Antigamente, quando nos **vínhamos** ao parque, **víamos** mais crianças pulando corda
+      en: In the past, when we **came** to the park, we **saw** more kids jumping rope
+    - pr: Antigamente, quando eles **vinham** ao parque, **viam** mais crianças brincando
+      en: In the past, when they **came** to the park, they **saw** more kids playing
+  preterite:
+    - pr: Ontem, quando **vim** ao parque, eu **vi** uma capivara
+      en: Yesterday, when I **came** to the park, I **saw** a capybara
+    - pr: Ontem, quando **veio** a floresta, ele **viu** um urso
+      en: Yesterday, when he **came** to the forest, he **saw** a bear
+    - pr: Ontem, quando **viemos** ao jardim, nos **vimos** uma flor maravilhosa
+      en: Yesterday, when we **came** to the garden, we **saw** an amazing flower
+    - pr: Ontem, quando **vieram** a cidade, eles **viram** um desfile
+      en: Yesterday, when they **came** to the city, they **saw** a parade
+    - pr: Eu **vim** à cidade e **vi** meu filho
+      en: I **came** to the city and **saw** my son
+    - pr: Ele **veio** à festa e **viu** sua namorada
+      en: He **came** to the city and **saw** his girlfriend

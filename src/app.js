@@ -10,7 +10,7 @@ import { Logger } from './Logger';
 import { speak } from './speak';
 import { optionsStore } from './stores/OptionsStore';
 import { questionsStore } from './stores/QuestionsStore';
-import { assert, removeArrayElement, requireById, requireFirstChild, sha256, shuffleArray } from './utils';
+import { assert, getRandomElement, markifyText, removeArrayElement, requireById, requireFirstChild, sha256, shuffleArray } from './utils';
 
 Logger.enable();
 Logger.disableDebug();
@@ -98,6 +98,7 @@ function shuffleQuestions() {
     conj.ver.imperfect.forEach(addProblem);
     conj.ver.presentPerfect.forEach(addProblem);
     conj.ver.future.forEach(addProblem);
+    conj.ver.presentSubjunctive.forEach(addProblem);
   }
 
   if (selectedExercises[EXERCISE.VIR_CONJUGATION]) {
@@ -106,6 +107,13 @@ function shuffleQuestions() {
     conj.vir.imperfect.forEach(addProblem);
     conj.vir.presentPerfect.forEach(addProblem);
     conj.vir.future.forEach(addProblem);
+    conj.vir.presentSubjunctive.forEach(addProblem);
+  }
+
+  if (selectedExercises[EXERCISE.VER_AND_VIR]) {
+    conj.ver_and_vir.present.forEach(addProblem);
+    conj.ver_and_vir.preterite.forEach(addProblem);
+    conj.ver_and_vir.imperfect.forEach(addProblem);
   }
 
   if (selectedExercises[EXERCISE.WEAK_PHRASES]) {
@@ -133,18 +141,24 @@ function playTranslationAudio() {
   /** @type {string} */
   // @ts-ignore
   const ptPhrase = currentProblem[currentProblem[2]]
-  const hideSpeakingStatus = showSpeakingStatus();
-  speak(ptPhrase, () => hideSpeakingStatus())
+  const [showSpeakingStatus, hideSpeakingStatus] = prepareSpeakingStatus();
+  const didSpeak = speak(ptPhrase, () => hideSpeakingStatus());
+  if (didSpeak) {
+    showSpeakingStatus();
+  }
 }
 
 function advance() {
   if (state.revealed) {
     state.index++;
     state.revealed = false;
-    if (optionsStore.getMode() === MODE.LISTENING) {
+    const numProblems = state.problems.length
+    const currentIndex = state.index % numProblems;
+    if (currentIndex === 0) {
+      celebrate();
+    } else if (optionsStore.getMode() === MODE.LISTENING) {
       playTranslationAudio();
     }
-    snoozeCurrentQuestion(ONE_HOUR_MS, false);
   } else {
     state.revealed = true;
   }
@@ -184,11 +198,15 @@ function handleKeyPress(ev) {
 
   if (isCharPressed(ev, SpecialKey.ArrowRight)) {
     advance();
+    ev.preventDefault();
   } else if (isCharPressed(ev, SpecialKey.ArrowLeft)) {
     rewind();
+    ev.preventDefault();
   } else if (isCharPressed(ev, SpecialKey.Space)) {
     ev.preventDefault();
     playTranslationAudio();
+  } else if (isCharPressed(ev, SpecialKey.Enter) && ev.shiftKey && ev.altKey) {
+    celebrate();
   }
 }
 
@@ -305,18 +323,6 @@ function renderOptions() {
 }
 
 /**
- * @param {string} text
- * @returns string
- */
-function markifyText(text) {
-  const regMarkdownBoldStart = /(?<!\S)\*\*(?!\s)/g;
-  const regMarkdownBoldEnd = /(?<!\s)\*\*(?!\S)/g;
-  return text
-    .replace(regMarkdownBoldStart, "<strong class=\"accent\">")
-    .replace(regMarkdownBoldEnd, "</strong>")
-}
-
-/**
  * @param {number} snoozeDurationMs
  */
 function snoozeCurrentQuestion(snoozeDurationMs, shouldRemoveProblem = true) {
@@ -384,25 +390,47 @@ function prepareHashData(onProcessingComplete = () => {}) {
   }
 }
 
-function showSpeakingStatus() {
-  let i = 0;
-  speechStatus.innerText = '.';
-  const interval = setInterval(() => {
-    i++;
-    speechStatus.innerText = (() => {
-      if (i % 3 === 0) {
-        return '.';
-      }
-      if (i % 3 === 1) {
-        return '..';
-      }
-      return '...';
-    })()
-  }, 500);
-  return () => {
-    clearInterval(interval);
+/**
+ * @returns {[() => void, () => void]}
+ */
+function prepareSpeakingStatus() {
+  /** @type {NodeJS.Timeout | null} */
+  let interval = null;
+  const showSpeakingStatus = () => {
+    let i = 0;
+    speechStatus.innerText = '.';
+    interval = setInterval(() => {
+      i++;
+      speechStatus.innerText = (() => {
+        if (i % 3 === 0) {
+          return '.';
+        }
+        if (i % 3 === 1) {
+          return '..';
+        }
+        return '...';
+      })()
+    }, 500);
+  }
+  const hideSpeakingStatus = () => {
+    if (interval) {
+      clearInterval(interval);
+    }
     speechStatus.innerText = "";
   };
+  return [showSpeakingStatus, hideSpeakingStatus];
+}
+
+function celebrate() {
+  const sounds = [
+    'sfx/162395__zut50__yay.mp3',
+    'sfx/239594__xtrgamr__unimpressedyay_01.wav',
+    'sfx/252808__xtrgamr__yay.wav',
+    'sfx/323703__reitanna__funny-yay.wav',
+    'sfx/353923__dr_skitz__yay.wav',
+  ]
+  const sound = new Audio(getRandomElement(sounds));
+  sound.play();
 }
 
 main();

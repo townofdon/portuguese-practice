@@ -62,7 +62,7 @@ main {
   position: relative;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   gap: 20px;
 }
@@ -85,11 +85,16 @@ main {
   border-radius: 8px;
   padding: 30px;
   min-width: 200px;
+  max-width: 300px;
   min-height: 100px;
   font-size: 1.5em;
   line-height: 1.5em;
   border: solid 2px #0000004a;
   box-shadow: -5px 5px 4px 0px #0000007d;
+}
+
+.card .subtle {
+  font-size: 0.65em;
 }
 
 .card.answer {
@@ -102,12 +107,20 @@ main {
 
 .card.answer.revealed .accent {
   color: #61ebc5;
+  color: #18f0b5;
+}
+.card.answer.revealed .subtle {
+  color: #7facb5;
 }
 
 .card.answer:not(.revealed) > .content { display: none; }
 .card.answer:not(.revealed) > .intrigue { display: block; }
 .card.answer.revealed > .content { display: block; }
 .card.answer.revealed > .intrigue { display: none; }
+
+.card.question .subtle {
+  color: #868e9a;
+}
 
 .card.question > .intrigue { display: none; }
 .main.mode-listening .card.question:not(.revealed) > .content { display: none; }

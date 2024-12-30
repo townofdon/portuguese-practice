@@ -19,6 +19,18 @@ export function shuffleArray(array) {
 }
 
 /**
+ * @template T
+ * @param {Array.<T>} arr
+ * @returns {T}
+ */
+export function getRandomElement(arr) {
+  const randomIndex = Math.floor(Math.random() * arr.length);
+  const elem = arr[randomIndex];
+  if (!elem) throw new Error('something went terribly wrong');
+  return elem;
+}
+
+/**
  * @param {any|(() => boolean)} condition
  * @param {?string} optText
  */
@@ -69,4 +81,20 @@ export async function sha256(message = '') {
     .map((b) => b.toString(16).padStart(2, "0"))
     .join(""); // convert bytes to hex string
   return hashHex;
+}
+
+/**
+ * @param {string} text
+ * @returns string
+ */
+export function markifyText(text) {
+  // https://regex101.com/r/epZo6M/1
+  const regBold = /(?<!\S)\*\*(.+?)\*\*(?!\*)(?!\S)/g
+  // https://regex101.com/r/nkYFpp/1
+  const regEm = /(?<!\S)\_(.+?)\_(?!\S)/g
+  const newline = /\s*\\n\s*/g;
+  return text
+    .replace(regBold, "<strong class=\"accent\">$1</strong>")
+    .replace(regEm, "<em class=\"subtle\">$1</em>")
+    .replace(newline, "<br/>")
 }
