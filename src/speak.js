@@ -9,16 +9,17 @@ const selectVoice = requireById("select-voice")
 /** @type {SpeechSynthesisVoice[]} */
 let voices = [];
 
-function removeVoiceOptions() {
+function loadVoices() {
+  // note that in some browsers, loadVoices() must occur after user interaction...
+  voices = synth.getVoices();
+  if (!voices.length) {
+    return;
+  }
   for (const child of selectVoice.children) {
     child.remove();
   }
-}
-
-function loadVoices() {
-  voices = synth.getVoices();
-  removeVoiceOptions();
   let chosenVoiceIndex = 0;
+  let backupVoiceIndex = 0;
   for (let i = 0; i < voices.length; i++) {
     const voice = voices[i];
     if (!voice) {
@@ -34,8 +35,11 @@ function loadVoices() {
     if (!chosenVoiceIndex && voice.lang === 'pt-BR' && voice.name.toLowerCase().includes('google')) {
       chosenVoiceIndex = i;
     }
+    if (!backupVoiceIndex  && voice.lang === 'pt-BR') {
+      backupVoiceIndex = i;
+    }
   }
-  selectVoice.value = String(chosenVoiceIndex);
+  selectVoice.value = String(chosenVoiceIndex || backupVoiceIndex);
 }
 
 // in Google Chrome the voices are not ready on page load
@@ -52,6 +56,7 @@ if ("onvoiceschanged" in synth) {
  */
 export const speak = (text, onFinished = undefined) => {
   if (synth.speaking) return false;
+  if (!voices.length) loadVoices(-1);
   const filtered = text.replace(/\*\*/g, '');
   const utterance = new SpeechSynthesisUtterance(filtered);
   const voice = voices[parseInt(selectVoice.value, 10)];
