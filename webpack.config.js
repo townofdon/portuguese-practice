@@ -30,6 +30,7 @@ const config = {
       patterns: [
         { from: "public/css", to: "css" },
         { from: "public/sfx", to: "sfx" },
+        { from: "public/favicon", to: "favicon" },
       ],
     }),
     new HtmlWebpackPlugin({
