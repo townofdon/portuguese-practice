@@ -2,6 +2,7 @@
 
 import conj from './resources/conjugation-ver-vir.yaml';
 import weakPhrases from './resources/weak-phrases.yaml';
+import vocab from './resources/vocab.yaml';
 
 import { EXERCISE, MODE, ONE_HOUR_MS, ORDER } from './constants';
 import { isCharPressed, SpecialKey } from './keyboardUtils';
@@ -109,6 +110,10 @@ function shuffleQuestions() {
 
   if (selectedExercises[EXERCISE.WEAK_PHRASES]) {
     weakPhrases.forEach(addProblem);
+  }
+
+  if (selectedExercises[EXERCISE.VOCAB]) {
+    vocab.forEach(addProblem);
   }
 
   state.problems = shuffleArray(problems);
@@ -222,6 +227,10 @@ function handleClickSnooze(ev) {
   if (!seconds) return;
   const snoozeDurationMs = seconds * 1000;
   snoozeCurrentQuestion(snoozeDurationMs);
+  if (optionsStore.getMode() === MODE.LISTENING) {
+    playTranslationAudio();
+  }
+  renderContent();
 }
 
 /**

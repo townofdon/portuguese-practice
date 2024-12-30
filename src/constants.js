@@ -17,6 +17,7 @@ export const EXERCISE = {
   VER_CONJATION: 'checkbox-exercise-ver-conjugation',
   VIR_CONJUGATION: 'checkbox-exercise-vir-conjugation',
   WEAK_PHRASES: 'checkbox-exercise-weak-phrases',
+  VOCAB: 'checkbox-exercise-vocab',
 }
 
 /**

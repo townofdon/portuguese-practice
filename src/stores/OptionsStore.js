@@ -13,6 +13,7 @@ class OptionsStore extends BaseStore {
       [EXERCISE.VER_CONJATION]: true,
       [EXERCISE.VIR_CONJUGATION]: true,
       [EXERCISE.WEAK_PHRASES]: true,
+      [EXERCISE.VOCAB]: true,
     },
     mode: MODE.READING,
   };
@@ -44,7 +45,10 @@ class OptionsStore extends BaseStore {
   /**
    * @returns {Record<EXERCISE, boolean>}
    */
-  getSelectedExercises = () => ({ ...this._state.selectedExercises });
+  getSelectedExercises = () => ({
+    ...this._defaultValue.selectedExercises,
+    ...this._state.selectedExercises,
+  });
 
   /**
    * @param {string} exercise
