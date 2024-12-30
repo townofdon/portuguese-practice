@@ -18,7 +18,7 @@
 
 
 
-<main class="main">
+<main id="main" class="main">
   <div class="container">
     <h1>🇧🇷 Português Exercises</h1>
 
@@ -40,10 +40,11 @@
         </div>
       </div>
 
-      <div id="card-question" class="card">
+      <div id="card-question" class="card question">
         <span class="content">
           eu quero taco bell
         </span>
+        <h3 class="intrigue">?</h3>
       </div>
 
       <div id="card-answer" class="card answer">
@@ -64,9 +65,12 @@
           <span class="content">NEXT</span>
           <span>&nbsp;→</span>
         </button>
-        <button id="button-speak" class="speak" title="Speak portuguese phrase">
-          <span>🔊</span>
-        </button>
+        <div class="button-speak-container">
+          <button id="button-speak" class="speak" title="Speak portuguese phrase">
+            <span>🔊</span>
+          </button>
+          <span id="speech-status"></span>
+        </div>
       </div>
     </div>
 
@@ -118,9 +122,9 @@
           <p><strong>Quiz Mode</strong></p>
           <form id="form-select-mode" onsubmit="(e) => e.preventDefault()">
             <p>
-              <select id="select-mode">
-                <option value="reading">Reading</option>
-                <option value="listening">Listening</option>
+              <select name="select-mode" id="select-mode">
+                <option value="mode-reading">Reading</option>
+                <option value="mode-listening">Listening</option>
               </select>
             </p>
           </form>
@@ -134,6 +138,12 @@
               <select id="select-voice"></select>
             </p>
           </form>
+        </div>
+      </div>
+      <div class="options-container">
+        <div class="option">
+          <p><strong>Misc</strong></p>
+          <button id="button-unsnooze" class="unsnooze">↩️&nbsp;&nbsp;Un-snooze All Questions</button>
         </div>
       </div>
     </section>
