@@ -7,14 +7,31 @@ class QuestionsStore extends BaseStore {
   }
 
   /**
-   * Snoozed = key-value pairs of hashed portuguese phrase (sha256), and timeSnoozeExpiresMs
+   * * `snoozed` -> key-value pairs of hashed portuguese phrase (sha256), and timeSnoozeExpiresMs
+   * * `flagged` -> key-value pairs of hashed portuguese phrase (sha256), and numTimesFlagged
+   * @typedef {{ snoozed: Record<string, number>, flagged: Record<string, number> }} State
+   */
+
+  /**
    * ```snoozed: Record<string, number>```
+   * @type {State} _defaultValue
    */
   _defaultValue = {
     snoozed: {},
+    flagged: {},
   };
 
-  _state = this.getStore() || { ...this._defaultValue };
+  /** @type {State} _state */
+  _state = (() => {
+    const stored = this.getStore()
+    if (!stored) {
+      return { ...this._defaultValue }
+    }
+    return {
+      ...this._defaultValue,
+      ...stored,
+    }
+  })()
 
   getSnoozedQuestions = () => ({ ...this._state.snoozed });
 
@@ -35,6 +52,35 @@ class QuestionsStore extends BaseStore {
 
   unsnoozeAllQuestions = () => {
     this._state.snoozed = {};
+    this.setStore(this._state);
+  }
+
+  /**
+   * @param {string} hash
+   */
+  getFlagNum = (hash) => this._state.flagged[hash || ''] || 0;
+
+  /**
+   * @param {string} hash
+   */
+  flagQuestion = (hash) => {
+    if (!hash) {
+      return;
+    }
+    this._state.flagged[hash] = this._state.flagged[hash] || 0;
+    this._state.flagged[hash]++;
+    this.setStore(this._state);
+  }
+
+  /**
+   * @param {string} hash
+   */
+  unflagQuestion = (hash) => {
+    if (!hash) {
+      return;
+    }
+    this._state.flagged[hash] = this._state.flagged[hash] || 0;
+    this._state.flagged[hash] = Math.max(this._state.flagged[hash] - 1, 0);
     this.setStore(this._state);
   }
 

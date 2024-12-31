@@ -40,11 +40,11 @@ const formSelectExercises = requireById('form-select-exercises');
 const formSelectMode = requireById('form-select-mode');
 const speechStatus = requireById('speech-status');
 
-/** @type {{ revealed: boolean, problems: Problem[], flagged: Problem[], index: number }} State */
+/** @type {{ initialized: boolean, revealed: boolean, problems: Problem[], index: number }} State */
 const state = {
+  initialized: false,
   revealed: false,
   problems: [],
-  flagged: [],
   index: 0,
 };
 
@@ -128,25 +128,17 @@ function shuffleQuestions() {
   state.problems = shuffleArray(problems);
 
   prepareHashData(() => {
+    prioritizeFlaggedExercises();
     renderContent();
+    if (!state.initialized) {
+      state.problems.forEach(problem => questionsStore.unflagQuestion(problem.hash));
+    }
+    state.initialized = true;
   });
 }
 
 function prioritizeFlaggedExercises() {
-  const unflagged = state.problems.filter(problem => {
-    for (let i = 0; i < state.flagged.length; i++) {
-      const flagged = state.flagged[i];
-      if (!flagged) {
-        continue;
-      }
-      if (isSame(problem, flagged)) {
-        return false;
-      }
-    }
-    return true;
-  })
-  state.problems = [...state.flagged, ...unflagged];
-  state.flagged = [];
+  state.problems = state.problems.sort((a, b) => questionsStore.getFlagNum(b.hash) - questionsStore.getFlagNum(a.hash))
 }
 
 function playTranslationAudio() {
@@ -294,6 +286,8 @@ function renderContent() {
     cardQuestionContent.innerHTML = "Please select an exercise to begin";
     cardAnswerContent.innerHTML = "Por favor selecione um exercício para começar";
     cardAnswer.classList.add('revealed');
+    mainNode.classList.remove('mode-reading');
+    mainNode.classList.remove('mode-listening');
     progress.innerHTML = "0 / 0";
     return;
   }
@@ -319,13 +313,13 @@ function renderContent() {
     cardAnswer.classList.remove('revealed');
   }
 
-  mainNode.classList.remove('mode-reading');
-  mainNode.classList.remove('mode-listening')
   switch (optionsStore.getMode()) {
     case MODE.LISTENING:
+      mainNode.classList.remove('mode-reading');
       mainNode.classList.add('mode-listening');
       break;
     case MODE.READING:
+      mainNode.classList.remove('mode-listening');
       mainNode.classList.add('mode-reading');
       break;
   }
@@ -379,16 +373,7 @@ function flagCurrentQuestion() {
   const currentIndex = state.index % numProblems;
   const currentProblem = state.problems[currentIndex];
   if (!currentProblem) return;
-  for (let i = 0; i < state.flagged.length; i++) {
-    const flagged = state.flagged[i];
-    if (!flagged) {
-      continue;
-    }
-    if (isSame(currentProblem, flagged)) {
-      return;
-    }
-  }
-  state.flagged.push({ ...currentProblem });
+  questionsStore.flagQuestion(currentProblem.hash);
 }
 
 /** @type {null | (() => void)} */
