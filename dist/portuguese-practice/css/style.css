@@ -191,6 +191,15 @@ button.speak {
   opacity: 1;
 }
 
+button.flag {
+  position: absolute;
+  right: 100%;
+  padding: 6px 12px;
+  background: #101010;
+  color: #eee;
+  opacity: 1;
+}
+
 button.snooze {
   white-space: nowrap;
   display: flex;

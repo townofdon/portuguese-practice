@@ -33,6 +33,7 @@ const buttonSnooze1h = requireById('button-snooze-1h');
 const buttonSnooze7d = requireById('button-snooze-7d');
 const buttonSnooze30d = requireById('button-snooze-30d');
 const buttonUnsnooze = requireById('button-unsnooze');
+const buttonFlagWeak = requireById('button-flag-weak');
 const progress = requireById('progress');
 const formQuestionOrder = requireById('form-question-order');
 const formSelectExercises = requireById('form-select-exercises');
@@ -48,10 +49,11 @@ const speechStatus = requireById('speech-status');
  * @typedef {[string, string, number]|[string, string, number, string]} Problem
  */
 
-/** @type {{ revealed: boolean, problems: Problem[], index: number }} State */
+/** @type {{ revealed: boolean, problems: Problem[], flagged: Problem[], index: number }} State */
 const state = {
   revealed: false,
   problems: [],
+  flagged: [],
   index: 0,
 };
 
@@ -139,6 +141,23 @@ function shuffleQuestions() {
   });
 }
 
+function prioritizeFlaggedExercises() {
+  const unflagged = state.problems.filter(problem => {
+    for (let i = 0; i < state.flagged.length; i++) {
+      const flagged = state.flagged[i];
+      if (!flagged) {
+        continue;
+      }
+      if (problem[0] === flagged[0] && problem[1] === flagged[1]) {
+        return false;
+      }
+    }
+    return true;
+  })
+  state.problems = [...state.flagged, ...unflagged];
+  state.flagged = [];
+}
+
 function playTranslationAudio() {
   const numProblems = state.problems.length
   if (numProblems === 0) {
@@ -162,8 +181,10 @@ function advance() {
     state.revealed = false;
     const numProblems = state.problems.length
     const currentIndex = state.index % numProblems;
-    if (currentIndex === 0) {
+    const didComplete = currentIndex === 0;
+    if (didComplete) {
       celebrate();
+      prioritizeFlaggedExercises();
     } else if (optionsStore.getMode() === MODE.LISTENING) {
       playTranslationAudio();
     }
@@ -189,6 +210,7 @@ function setupListeners() {
   buttonSnooze7d.addEventListener('click', handleClickSnooze);
   buttonSnooze30d.addEventListener('click', handleClickSnooze);
   buttonUnsnooze.addEventListener('click', handleClickUnsnooze);
+  buttonFlagWeak.addEventListener('click', handleClickFlagWeak);
   document.addEventListener('keydown', handleKeyPress);
   // @ts-ignore
   formQuestionOrder.addEventListener('change', handleQuestionOrderChange)
@@ -265,6 +287,13 @@ function handleClickSnooze(ev) {
 function handleClickUnsnooze(ev) {
   questionsStore.unsnoozeAllQuestions();
   shuffleQuestions();
+}
+
+/**
+ * @param {*} ev
+ */
+function handleClickFlagWeak(ev) {
+  flagCurrentQuestion();
 }
 
 function renderContent() {
@@ -347,6 +376,26 @@ function snoozeCurrentQuestion(snoozeDurationMs, shouldRemoveProblem = true) {
     state.problems = removeArrayElement(state.problems, currentIndex);
     state.revealed = false;
   }
+}
+
+function flagCurrentQuestion() {
+  const numProblems = state.problems.length
+  if (numProblems === 0) {
+    return;
+  }
+  const currentIndex = state.index % numProblems;
+  const currentProblem = state.problems[currentIndex];
+  if (!currentProblem) return;
+  for (let i = 0; i < state.flagged.length; i++) {
+    const flagged = state.flagged[i];
+    if (!flagged) {
+      continue;
+    }
+    if (flagged[0] === currentProblem[0] && flagged[1] === currentProblem[1]) {
+      return;
+    }
+  }
+  state.flagged.push({ ...currentProblem });
 }
 
 /** @type {null | (() => void)} */
