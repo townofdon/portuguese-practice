@@ -98,3 +98,14 @@ export function markifyText(text) {
     .replace(regEm, "<em class=\"subtle\">$1</em>")
     .replace(newline, "<br/>")
 }
+
+/**
+ * @param {Problem} a
+ * @param {Problem} b
+ */
+export function isSame(a, b) {
+  if (!a || !b) return false;
+  if (a.hash === b.hash) return true;
+  if (a.en === b.en && a.pr === b.pr) return true;
+  return false;
+}

@@ -11,7 +11,7 @@ import { Logger } from './Logger';
 import { speak } from './speak';
 import { optionsStore } from './stores/OptionsStore';
 import { questionsStore } from './stores/QuestionsStore';
-import { assert, getRandomElement, markifyText, removeArrayElement, requireById, requireFirstChild, sha256, shuffleArray } from './utils';
+import { assert, getRandomElement, isSame, markifyText, removeArrayElement, requireById, requireFirstChild, sha256, shuffleArray } from './utils';
 
 Logger.enable();
 Logger.disableDebug();
@@ -39,15 +39,6 @@ const formQuestionOrder = requireById('form-question-order');
 const formSelectExercises = requireById('form-select-exercises');
 const formSelectMode = requireById('form-select-mode');
 const speechStatus = requireById('speech-status');
-
-/**
- * @typedef {{pr: string, en: string}} TranslationPair
- */
-
-/**
- * Problem Tuple -> `[question, answer, portuguese-index-for-text-to-speech, hash]`
- * @typedef {[string, string, number]|[string, string, number, string]} Problem
- */
 
 /** @type {{ revealed: boolean, problems: Problem[], flagged: Problem[], index: number }} State */
 const state = {
@@ -80,15 +71,15 @@ function shuffleQuestions() {
     }
     const order = optionsStore.getOrder();
     if (order === ORDER.EN_FIRST) {
-      problems.push([trans.en, trans.pr, 1]);
+      problems.push({ en: trans.en, pr: trans.pr, showFirst: 'en', hash: '' });
     } else if (order === ORDER.PR_FIRST) {
-      problems.push([trans.pr, trans.en, 0]);
+      problems.push({ en: trans.en, pr: trans.pr, showFirst: 'pr', hash: '' });
     } else {
       const flip = randBool();
       if (flip) {
-        problems.push([trans.en, trans.pr, 1]);
+        problems.push({ en: trans.en, pr: trans.pr, showFirst: 'en', hash: '' });
       } else {
-        problems.push([trans.pr, trans.en, 0]);
+        problems.push({ en: trans.en, pr: trans.pr, showFirst: 'pr', hash: '' });
       }
     }
   }
@@ -148,7 +139,7 @@ function prioritizeFlaggedExercises() {
       if (!flagged) {
         continue;
       }
-      if (problem[0] === flagged[0] && problem[1] === flagged[1]) {
+      if (isSame(problem, flagged)) {
         return false;
       }
     }
@@ -314,8 +305,11 @@ function renderContent() {
   assert(currentProblem, `currentProblem out of bounds - tried index ${currentIndex} for array of length ${numProblems}`);
   if (!currentProblem) return
 
-  cardQuestionContent.innerHTML = markifyText(currentProblem[0]);
-  cardAnswerContent.innerHTML = markifyText(currentProblem[1]);
+  const question = currentProblem.showFirst === 'en' ? currentProblem.en : currentProblem.pr;
+  const answer = currentProblem.showFirst === 'en' ? currentProblem.pr : currentProblem.en;
+
+  cardQuestionContent.innerHTML = markifyText(question);
+  cardAnswerContent.innerHTML = markifyText(answer);
 
   if (state.revealed) {
     cardQuestion.classList.add('revealed');
@@ -370,8 +364,7 @@ function snoozeCurrentQuestion(snoozeDurationMs, shouldRemoveProblem = true) {
   const currentIndex = state.index % numProblems;
   const currentProblem = state.problems[currentIndex];
   if (!currentProblem) return;
-  const hash = currentProblem[3] || "";
-  const didSnooze = questionsStore.snoozeQuestion(hash, snoozeDurationMs);
+  const didSnooze = questionsStore.snoozeQuestion(currentProblem.hash, snoozeDurationMs);
   if (didSnooze && shouldRemoveProblem) {
     state.problems = removeArrayElement(state.problems, currentIndex);
     state.revealed = false;
@@ -391,7 +384,7 @@ function flagCurrentQuestion() {
     if (!flagged) {
       continue;
     }
-    if (flagged[0] === currentProblem[0] && flagged[1] === currentProblem[1]) {
+    if (isSame(currentProblem, flagged)) {
       return;
     }
   }
@@ -417,20 +410,18 @@ function prepareHashData(onProcessingComplete = () => {}) {
     while (!ignore && i < state.problems.length) {
       const problem = state.problems[i];
       if (!problem) continue;
-      const ptPhrase = String(problem[problem[2]]);
+      const ptPhrase = String(problem.pr);
       const hash = await sha256(ptPhrase);
-      // @ts-ignore
-      state.problems[i][3] = hash;
+      problem.hash = hash;
       Logger.debug(`processing msg ${i} - ${hash} generated for "${ptPhrase}"`)
       i++;
     }
     if (!ignore) {
       const snoozedQuestions = questionsStore.getSnoozedQuestions();
       state.problems = state.problems.filter(problem => {
-        const hash = problem[3] || "";
         const currentTime = Date.now();
-        const timeSnoozeExpiresMs = snoozedQuestions[hash] || 0;
-        return !!hash && timeSnoozeExpiresMs < currentTime
+        const timeSnoozeExpiresMs = snoozedQuestions[problem.hash] || 0;
+        return !!problem.hash && timeSnoozeExpiresMs < currentTime
       })
 
       const timeEnd = performance.now();
