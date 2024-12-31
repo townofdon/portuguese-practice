@@ -30,6 +30,18 @@ declare module '*/conjugation-ver-vir.yaml' {
   export default data
 }
 
+declare module '*/conjugation-fazer.yaml' {
+  const data: {
+    present: TranslationPair[],
+    imperfect: TranslationPair[],
+    preterite: TranslationPair[],
+    presentPerfect: TranslationPair[],
+    // future: TranslationPair[],
+    // presentSubjunctive: TranslationPair[],
+  }
+  export default data
+}
+
 declare module '*/weak-phrases.yaml' {
   const data: TranslationPair[]
   export default data

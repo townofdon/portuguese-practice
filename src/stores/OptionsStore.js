@@ -10,9 +10,10 @@ class OptionsStore extends BaseStore {
   _defaultValue = {
     order: ORDER.ANY,
     selectedExercises: {
-      [EXERCISE.VER_CONJATION]: true,
+      [EXERCISE.VER_CONJUGATION]: true,
       [EXERCISE.VIR_CONJUGATION]: true,
       [EXERCISE.VER_AND_VIR]: true,
+      [EXERCISE.FAZER_CONJUGATION]: true,
       [EXERCISE.WEAK_PHRASES]: true,
       [EXERCISE.VOCAB]: true,
     },

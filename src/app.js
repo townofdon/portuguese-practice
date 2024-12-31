@@ -1,6 +1,7 @@
 'use strict'
 
 import conj from './resources/conjugation-ver-vir.yaml';
+import conjFazer from './resources/conjugation-fazer.yaml';
 import weakPhrases from './resources/weak-phrases.yaml';
 import vocab from './resources/vocab.yaml';
 
@@ -92,7 +93,7 @@ function shuffleQuestions() {
 
   const selectedExercises = optionsStore.getSelectedExercises()
 
-  if (selectedExercises[EXERCISE.VER_CONJATION]) {
+  if (selectedExercises[EXERCISE.VER_CONJUGATION]) {
     conj.ver.present.forEach(addProblem);
     conj.ver.preterite.forEach(addProblem);
     conj.ver.imperfect.forEach(addProblem);
@@ -114,6 +115,13 @@ function shuffleQuestions() {
     conj.ver_and_vir.present.forEach(addProblem);
     conj.ver_and_vir.preterite.forEach(addProblem);
     conj.ver_and_vir.imperfect.forEach(addProblem);
+  }
+
+  if (selectedExercises[EXERCISE.FAZER_CONJUGATION]) {
+    conjFazer.present.forEach(addProblem);
+    conjFazer.preterite.forEach(addProblem);
+    conjFazer.imperfect.forEach(addProblem);
+    conjFazer.presentPerfect.forEach(addProblem);
   }
 
   if (selectedExercises[EXERCISE.WEAK_PHRASES]) {

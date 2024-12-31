@@ -1,0 +1,41 @@
+---
+present:
+  - pr: Eu **faço** uma viagem
+    en: I **make** a journey
+  - pr: Que diferença faz?
+    en: What difference does it make?
+  - pr: A única história que tem valor é a história que **fazemos** hoje
+    en: The only history that's worth a damn is the history **we make** today
+  - pr: Repare nos pequenos detalhes; eles **fazem** toda a diferença
+    en: Take notice of the small details; they **make** all the difference
+imperfect:
+  - pr: Ver seu filme favorito sempre a **fazia** sentir-se nostálgica e acolhida
+    en: Watching her favorite movie always **made** her feel nostalgic and warm
+  - pr: O longo intervalo entre cada onda **fazia** a praia parecer tranquila
+    en: The stretching time between each wave **made** the beach feel peaceful
+  - pr: No entanto, **fazíamos** o que era possível em cada jogo
+    en: However, **we did** what was possible in every game
+  - pr: Ainda assim, parecia um pequeno avanço em relação ao que **fazíamos**
+    en: Still, it seemed a small improvement over what **we were doing**
+  - pr: Seus instintos atentos **faziam** dela uma ótima líder em situações críticas
+    en: Her observant instincts **made** her a great leader in critical situations.
+preterite:
+  - pr: Ontem à noite, fiz um intercâmbio de receitas com minha vizinha
+    en: I swapped recipes with my neighbor last night \n _(made an exchange)_
+  - pr: Não foi nada comparado ao esforço que **fiz** no ano passado
+    en: It was nothing compared to the effort **I put in** last year
+  - pr: Fui ao mercado ontem e **fiz estoque** de todos os meus produtos favoritos
+    en: I went grocery shopping yesterday and **stocked up** on all my favorites
+  - pr: O abraço dela o **fez** sentir-se seguro e amado naquele momento
+    en: Her embracing **made** him feel safe and loved in that moment
+  - pr: Apesar da estrada esburacada, **fizemos** ótimas lembranças em nossa viagem
+    en: Despite the bumpy road, we **made** great memories on our journey
+  - pr: Eles **fizeram** uma saída rápida da festa antes que alguém notasse
+    en: They **made** a swift escape from the party before anyone noticed
+presentPerfect:
+  - pr: O que tenho de **fazer** para te deixar feliz?
+    en: What do I have to do **to make** you happy?
+  - pr: Tenho que **fazer** dinheiro
+    en: I have **to make** the money
+future:
+presentSubjunctive:
