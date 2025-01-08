@@ -39,6 +39,7 @@ const formQuestionOrder = requireById('form-question-order');
 const formSelectExercises = requireById('form-select-exercises');
 const formSelectMode = requireById('form-select-mode');
 const speechStatus = requireById('speech-status');
+const questionFlags = requireById('question-flags');
 
 /** @type {{ initialized: boolean, revealed: boolean, problems: Problem[], index: number }} State */
 const state = {
@@ -129,11 +130,11 @@ function shuffleQuestions() {
 
   prepareHashData(() => {
     prioritizeFlaggedExercises();
-    renderContent();
     if (!state.initialized) {
       state.problems.forEach(problem => questionsStore.unflagQuestion(problem.hash));
     }
     state.initialized = true;
+    renderContent();
   });
 }
 
@@ -277,6 +278,7 @@ function handleClickUnsnooze(ev) {
  */
 function handleClickFlagWeak(ev) {
   flagCurrentQuestion();
+  renderContent();
 }
 
 function renderContent() {
@@ -324,6 +326,7 @@ function renderContent() {
       break;
   }
 
+  questionFlags.setAttribute('value', String(questionsStore.getFlagNum(currentProblem.hash)))
   progress.innerHTML = progressText;
 }
 

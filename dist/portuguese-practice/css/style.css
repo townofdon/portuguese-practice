@@ -78,6 +78,7 @@ main {
 }
 
 .card {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -151,6 +152,34 @@ main {
   margin-left: 10px;
   color: #eee;
 }
+
+.question-flags {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flag-star {
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: #5d6369;
+}
+
+.question-flags[value="0"] .flag-star { display: none; }
+.question-flags[value="1"] .flag-star[value="5"] { display: none; }
+.question-flags[value="1"] .flag-star[value="4"] { display: none; }
+.question-flags[value="1"] .flag-star[value="3"] { display: none; }
+.question-flags[value="1"] .flag-star[value="2"] { display: none; }
+.question-flags[value="2"] .flag-star[value="5"] { display: none; }
+.question-flags[value="2"] .flag-star[value="4"] { display: none; }
+.question-flags[value="2"] .flag-star[value="3"] { display: none; }
+.question-flags[value="3"] .flag-star[value="5"] { display: none; }
+.question-flags[value="3"] .flag-star[value="4"] { display: none; }
+.question-flags[value="4"] .flag-star[value="5"] { display: none; }
 
 button {
   display: inline-block;

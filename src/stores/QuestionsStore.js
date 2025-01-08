@@ -68,7 +68,7 @@ class QuestionsStore extends BaseStore {
       return;
     }
     this._state.flagged[hash] = this._state.flagged[hash] || 0;
-    this._state.flagged[hash]++;
+    this._state.flagged[hash] = Math.min(this._state.flagged[hash] + 1, 5);
     this.setStore(this._state);
   }
 
