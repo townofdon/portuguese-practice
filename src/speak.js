@@ -55,6 +55,7 @@ if ("onvoiceschanged" in synth) {
  * @returns {boolean}
  */
 export const speak = (text, onFinished = undefined) => {
+  if (!text) return false;
   if (synth.speaking) return false;
   if (!voices.length) loadVoices();
   const filtered = text.replace(/\*\*/g, '');

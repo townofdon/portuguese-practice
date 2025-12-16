@@ -149,9 +149,7 @@ function playTranslationAudio() {
   }
   const currentIndex = state.index % numProblems;
   const currentProblem = state.problems[currentIndex];
-  /** @type {string} */
-  // @ts-ignore
-  const ptPhrase = currentProblem[currentProblem[2]]
+  const ptPhrase = currentProblem?.pr || ''
   const [showSpeakingStatus, hideSpeakingStatus] = prepareSpeakingStatus();
   const didSpeak = speak(ptPhrase, () => hideSpeakingStatus());
   if (didSpeak) {
